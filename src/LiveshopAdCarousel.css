@@ -1,0 +1,293 @@
+/* ---------------------------------------------- */
+/* ESTILOS GLOBAIS DO CARROSSEL (Swiper) */
+/* ---------------------------------------------- */
+.swiper-container {
+    width: 100%;
+    /* max-width: 1399px; -> Já está no JSX */
+    /* min-height: 500px; -> Já está no JSX */
+    position: relative;
+}
+
+.swiper {
+    width: 100%;
+    height: 100%;
+}
+
+.swiper-wrapper {
+    align-items: center;
+}
+
+.swiper-slide {
+    overflow: hidden;
+    transition: all .3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 9/16;
+    /* max-height: 500px; -> Já está no JSX */
+    user-select: none;
+    border-radius: 18px; /* Do style do slide */
+}
+
+/* Estilo para slides não ativos (conversão de :not(.swiper-slide-active)) */
+.swiper-slide:not(.swiper-slide-active) {
+    opacity: 1 !important;
+    transform: scale(0.9) !important;
+}
+
+.swiper-slide-active {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+    z-index: 2;
+}
+
+/* Botões de Navegação (Prev/Next) */
+.swiper-button-next,
+.swiper-button-prev {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, .3);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(133, 133, 133, .3);
+    transition: all .3s ease;
+    top: 50%;
+    transform: translateY(-50%);
+    /* O Swiper.js adiciona o ícone padrão, vamos resetar e usar o do código original */
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+    display: none !important; /* garante que o ícone padrão suma totalmente */
+    content: none !important;
+}
+
+
+.swiper-button-next,
+.swiper-button-prev {
+    /* Estilos do ícone de seta (triângulo) usando before/after */
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.swiper-button-next::before,
+.swiper-button-prev::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-top: 2px solid #fff;
+    border-right: 2px solid #fff;
+    display: block;
+}
+
+.swiper-button-prev::before {
+    transform: rotate(-135deg);
+    margin-right: -5px;
+}
+
+.swiper-button-next::before {
+    transform: rotate(45deg);
+    margin-left: -5px;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+    background: #262626;
+    transform: scale(1.1) translateY(-50%);
+}
+
+.swiper-button-prev {
+    left: 3px;
+}
+
+.swiper-button-next {
+    right: 3px;
+}
+
+/* ---------------------------------------------- */
+/* ESTILOS DO VÍDEO (liveshop-ads-video / lav-*) */
+/* ---------------------------------------------- */
+
+.liveshop-ads-video {
+    position: relative;
+    user-select: none;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    background: linear-gradient(3deg, #e5e5e5 0, #c4c4c4 100%);
+}
+
+.liveshop-ads-video * {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    box-sizing: border-box;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+}
+
+.liveshop-ads-video video {
+    object-fit: cover;
+    width: 100%; /* Garantir que o vídeo preencha o container */
+    height: 100%; /* Garantir que o vídeo preencha o container */
+}
+
+/* Play Button */
+.liveshop-ads-video > .lav-play-btn {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, .1);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    animation: 1.6s lavPlayBtnAnimation ease-out infinite;
+}
+
+.liveshop-ads-video > .lav-play-btn.--light {
+    border: 1px solid rgba(255, 255, 255, .27);
+    background: rgba(255, 255, 255, .08);
+}
+
+.liveshop-ads-video > .lav-play-btn > .lav-play-btn-icon {
+    opacity: .9;
+    width: 18px;
+    height: 18px;
+    /* Transformação do SVG de play (original estava rotated) */
+    transform: rotate(90deg); 
+    fill: #fff;
+}
+
+/* Store Logo */
+.liveshop-ads-video > .lav-store-logo {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    height: 42px;
+    width: 42px;
+    overflow: hidden;
+    z-index: 2; /* Importante para sobrepor o vídeo */
+}
+
+.liveshop-ads-video > .lav-store-logo > img {
+    max-height: 100%;
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+/* Products Bar (Rodapé) */
+.liveshop-ads-video > .lav-products {
+    position: absolute;
+    content: "";
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    display: flex;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    overflow: auto; /* Permite scroll horizontal */
+    gap: 12px;
+    padding: 12px;
+    z-index: 2;
+    cursor: grab;
+}
+
+.liveshop-ads-video > .lav-products > .lav-product {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px;
+    padding: 8px;
+    position: relative;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .1);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    max-width: 230px;
+    min-width: min(90%, 230px); /* Usado no -has-scroll */
+    overflow: hidden;
+    height: 100%;
+}
+
+.liveshop-ads-video > .lav-products > .lav-product.--light {
+    background: rgba(255, 255, 255, .15);
+}
+
+.liveshop-ads-video > .lav-products > .lav-product > .lav-product-info {
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    overflow: hidden;
+    height: 100%;
+    justify-content: space-between;
+}
+
+.liveshop-ads-video > .lav-products > .lav-product > .lav-product-info > .lav-product-price.-no-price > .text-small {
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 19px;
+    border-radius: 50px;
+    background: rgba(0, 0, 0, .1921568627);
+    font-weight: lighter;
+    font-size: 11px;
+}
+
+/* Sound Icon (Estrutura de Ícone de alto-falante) */
+.liveshop-ads-video > .lav-sound-icon {
+    position: absolute;
+    z-index: 2;
+    top: 22px;
+    right: 0px; /* Ajuste a posição, era -4px */
+    cursor: pointer;
+    width: 40px; /* Dimensões do elemento pai para clique */
+    height: 20px;
+}
+
+.liveshop-ads-video > .lav-sound-icon > .lav-sound-icon-speaker {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: -6px;
+    right: -1px;
+    height: 16px;
+    width: 40px;
+    overflow: hidden;
+}
+
+/* Estilo para MUTE (-silent) */
+.liveshop-ads-video > .lav-sound-icon.-silent > .lav-sound-icon-speaker > .lav-sound-icon-speaker-cover {
+    gap: 0;
+    width: 4px;
+    height: 10px;
+    margin-left: 2px;
+}
+
+/* ANIMAÇÕES (Chaves de animação traduzidas para CSS padrão) */
+
+@keyframes lavPlayBtnAnimation {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, .3), 0 0 0 0 rgba(255, 255, 255, .2);
+    }
+    25% {
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, .3), 0 0 0 0 rgba(255, 255, 255, .2);
+    }
+    100% {
+        box-shadow: 0 0 0 16px rgba(255, 255, 255, 0), 0 0 0 27px rgba(255, 255, 255, 0);
+    }
+}
+/* ... Adicione lavLowerBarAnimation e lavHigherBarAnimation se precisar dos efeitos de som pulsante ... */

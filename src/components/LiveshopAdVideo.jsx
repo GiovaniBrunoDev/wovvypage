@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 function LiveshopAdVideo({ videoData, theme = 'light', borderRadius = '18px' }) {
   const [isMuted, setIsMuted] = useState(true);
   const { url, thumbnail, products } = videoData;
+  const videoRef = useRef(null);
 
   const toggleMute = (e) => {
     e.stopPropagation();
@@ -11,6 +12,22 @@ function LiveshopAdVideo({ videoData, theme = 'light', borderRadius = '18px' }) 
 
   // Pega apenas o primeiro produto
   const product = products[0];
+
+  // Forçar autoplay ao montar o componente
+  useEffect(() => {
+    if (videoRef.current) {
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            // autoplay iniciado com sucesso
+          })
+          .catch((error) => {
+            console.log('Autoplay falhou:', error);
+          });
+      }
+    }
+  }, []);
 
   return (
     <div
@@ -26,6 +43,7 @@ function LiveshopAdVideo({ videoData, theme = 'light', borderRadius = '18px' }) 
     >
       {/* Vídeo */}
       <video
+        ref={videoRef}
         style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover' }}
         autoPlay
         playsInline

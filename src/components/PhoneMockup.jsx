@@ -17,7 +17,7 @@ export default function PhoneMockup({
 
   return (
     <div
-      className="flex items-center justify-center bg-white py-10 px-4 sm:px-6"
+      className="flex items-center justify-center bg-white py-10 px-2 sm:px-6"
       style={{
         width: "100%",
         margin: "0 auto",
@@ -25,7 +25,8 @@ export default function PhoneMockup({
     >
       {/* Moldura externa */}
       <div
-        className="relative transition-transform duration-300 ease-in-out w-full max-w-[380px] sm:max-w-[360px] md:max-w-[400px]"
+        className="relative transition-transform duration-300 ease-in-out w-full 
+                   max-w-[480px] sm:max-w-[380px] md:max-w-[400px]"
         style={{
           borderRadius,
           padding: "12px",

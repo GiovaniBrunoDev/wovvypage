@@ -26,7 +26,7 @@ export default function PhoneMockup({
       {/* Moldura externa */}
       <div
         className="relative transition-transform duration-300 ease-in-out w-full 
-                   max-w-[480px] sm:max-w-[380px] md:max-w-[400px]"
+                   max-w-[520px] sm:max-w-[380px] md:max-w-[400px] scale-[1.08] sm:scale-100"
         style={{
           borderRadius,
           padding: "12px",

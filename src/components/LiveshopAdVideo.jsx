@@ -81,7 +81,7 @@ function LiveshopAdVideo({ videoData, theme = 'light', borderRadius = '18px' }) 
           style={{
             position: 'absolute',
             bottom: '10px',
-            left: '50px',
+            left: '70px',
             background: 'rgba(0,0,0,0.6)',
             color: '#fff',
             padding: '8px 12px',

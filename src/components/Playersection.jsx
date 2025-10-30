@@ -1,4 +1,5 @@
 import React from "react";
+import PhoneMockup from "./PhoneMockup";
 
 export default function PlayerSection() {
     return (
@@ -6,12 +7,14 @@ export default function PlayerSection() {
             <div className="container mx-auto px-6">
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                     {/* Imagem */}
-                    <img
-                        src="https://cdn.prod.website-files.com/68534b92397efd8baad925b1/68534d60fe1993a9261a0df7_6a7b438a-db4a-44da-8c19-0cdf4d707605.avif"
-                        alt="Woman looking at phone screen"
-                        className="w-full h-auto object-cover rounded-2xl shadow-lg"
-                        loading="lazy"
-                    />
+                    <div className="p-8 bg-white flex items-center justify-center">
+                        <PhoneMockup
+                            gifSrc="/4.gif"
+                            poster="/assets/poster.png"
+                            width="360px"
+                            rounded={true}
+                        />
+                    </div>
 
                     {/* Conteúdo */}
                     <div className="text-left">
@@ -34,17 +37,17 @@ export default function PlayerSection() {
 
                         {/* Centraliza só o botão */}
                         <div className="flex flex-col sm:flex-row gap-4 justify-center hero-fade-in" style={{ animationDelay: '0.15s' }}>
-                             <a
-                        href="#começar"
-                        className="group relative inline-flex items-center justify-center px-10 py-3 text-lg font-semibold text-white bg-gradient-to-r from-blue-700 to-blue-500 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
-                        aria-label="Começar agora"
-                    >
-                        <span className="relative z-10">Comece Agora!</span>
-                        <span
-                            className="absolute inset-0 transition-transform transform -translate-x-full group-hover:translate-x-0 pointer-events-none"
-                            aria-hidden
-                        ></span>
-                    </a>
+                            <a
+                                href="#começar"
+                                className="group relative inline-flex items-center justify-center px-10 py-3 text-lg font-semibold text-white bg-gradient-to-r from-blue-700 to-blue-500 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                                aria-label="Começar agora"
+                            >
+                                <span className="relative z-10">Comece Agora!</span>
+                                <span
+                                    className="absolute inset-0 transition-transform transform -translate-x-full group-hover:translate-x-0 pointer-events-none"
+                                    aria-hidden
+                                ></span>
+                            </a>
                         </div>
                     </div>
 

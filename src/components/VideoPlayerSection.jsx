@@ -1,5 +1,5 @@
 import React from "react";
-import { FaBroadcastTower, FaBolt, FaShoppingCart, FaMagic, FaSmile } from "react-icons/fa";
+import { FaBroadcastTower, FaBolt, FaShoppingCart, FaSmile } from "react-icons/fa";
 
 const benefits = [
   { 
@@ -18,11 +18,6 @@ const benefits = [
     description: "Compatível com Shopify, WooCommerce, Nuvemshop e outras plataformas modernas." 
   },
   { 
-    icon: FaMagic, 
-    title: "Design que encanta", 
-    description: "Interface minimalista com micro animações e identidade visual premium Wovvy." 
-  },
-  { 
     icon: FaSmile, 
     title: "Experiência imersiva", 
     description: "Transforme páginas de produto comuns em experiências que convertem e encantam." 
@@ -32,7 +27,8 @@ const benefits = [
 export default function BenefitsSection() {
   return (
     <section className="py-24 bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-6xl mx-auto px-6 text-center">
+      <div className="max-w-[1600px] mx-auto px-12 text-center"> 
+        {/* Aumentei o container para manter o espaço total igual */}
         
         <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6">
           Por que escolher o <span className="text-blue-500">Wovvy</span>?
@@ -42,13 +38,14 @@ export default function BenefitsSection() {
           Leve, intuitivo e feito para aumentar conversões.
         </p>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Mantém os 4 cards grandes e lado a lado no desktop */}
+        <div className="flex flex-wrap justify-center gap-8">
           {benefits.map((benefit, i) => {
             const Icon = benefit.icon;
             return (
               <div
                 key={i}
-                className="group bg-white rounded-3xl shadow-md hover:shadow-2xl border border-gray-100 transition-all duration-300 p-10 flex flex-col items-center text-center hover:-translate-y-1"
+                className="group bg-white rounded-3xl shadow-md hover:shadow-2xl border border-gray-100 transition-all duration-300 p-10 flex flex-col items-center text-center hover:-translate-y-1 w-[350px] lg:w-[360px]"
               >
                 <div className="bg-blue-500/10 text-blue-500 p-5 rounded-full text-4xl mb-6 group-hover:bg-blue-500 group-hover:text-white transition-all">
                   <Icon />

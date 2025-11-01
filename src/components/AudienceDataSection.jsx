@@ -3,7 +3,7 @@ import { FaChartLine, FaCogs, FaGlobe, FaPalette } from "react-icons/fa";
 
 const sections = [
   {
-    image: "/1030.gif",
+    image: "/1031.gif",
     title: "Análise Avançada de Desempenho",
     description:
       "Entenda o impacto real de cada vídeo e como ele influencia suas vendas. Nossa análise ajuda você a tomar decisões mais inteligentes.",

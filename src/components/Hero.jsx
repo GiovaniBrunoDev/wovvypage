@@ -46,7 +46,7 @@ export default function Hero() {
                     style={{ animationDelay: '0.15s' }}
                 >
                     <a
-                        href="#começar"
+                        href="https://typebot.co/wovvy"
                         className="group relative inline-flex items-center justify-center px-10 py-3 text-lg font-semibold text-white bg-gradient-to-r from-blue-700 to-blue-500 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
                         aria-label="Começar agora"
                     >

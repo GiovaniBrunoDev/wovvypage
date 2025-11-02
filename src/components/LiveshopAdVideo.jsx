@@ -15,19 +15,29 @@ function LiveshopAdVideo({ videoData, theme = 'light', borderRadius = '18px' }) 
 
   // Forçar autoplay ao montar o componente
   useEffect(() => {
-    if (videoRef.current) {
-      const playPromise = videoRef.current.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            // autoplay iniciado com sucesso
-          })
-          .catch((error) => {
-            console.log('Autoplay falhou:', error);
-          });
+  if (videoRef.current) {
+    // Força autoplay e reseta o vídeo se necessário
+    const video = videoRef.current;
+    video.muted = isMuted;
+    video.loop = true;
+    video.playsInline = true;
+
+    const tryPlay = () => {
+      const promise = video.play();
+      if (promise !== undefined) {
+        promise.catch(() => {
+          // Se o autoplay falhar, tenta novamente após um tempo
+          setTimeout(() => {
+            video.play().catch(() => {});
+          }, 1000);
+        });
       }
-    }
-  }, []);
+    };
+
+    tryPlay();
+  }
+}, [isMuted]);
+
 
   return (
     <div

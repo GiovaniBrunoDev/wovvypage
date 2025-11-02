@@ -14,11 +14,13 @@ import SectionPlanos from "./components/SectionPlanos";
 import SectionBeneficios from "./components/SectionBeneficios";
 import SectionCTA from "./components/SectionCTA";
 import SectionContato from "./components/SectionContato";
+import LiveshopWidget from "./components/LiveshopWidget";
 
 
 export default function App() {
   return (
     <div className="min-h-screen bg-white text-gray-900">
+      <LiveshopWidget />
       <Hero />
       <MarqueeSection />
       <NumerosSection />

@@ -279,7 +279,7 @@ export default function Chat() {
 
   const step = flow.find((s) => s.id === currentStep);
 
- return (
+return (
   <div
     style={{
       width: "100vw",
@@ -287,13 +287,14 @@ export default function Chat() {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      backgroundImage: `url("/fundo.png")`, // 🖼️ substitua pelo caminho correto
+      backgroundImage: `url("/fundo.png")`,
       backgroundSize: "cover",
       backgroundPosition: "center",
       backgroundRepeat: "no-repeat",
       padding: "16px",
       position: "relative",
       overflow: "hidden",
+      fontFamily: "Inter, sans-serif",
     }}
   >
     {/* Overlay translúcido */}
@@ -317,10 +318,9 @@ export default function Chat() {
         borderRadius: 20,
         display: "flex",
         flexDirection: "column",
-        padding: "20px",
+        padding: "22px",
         boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
         border: "1px solid rgba(0,0,0,0.04)",
-        fontFamily: "Inter, sans-serif",
         zIndex: 1,
         overflow: "hidden",
       }}
@@ -333,8 +333,8 @@ export default function Chat() {
           overflowY: "auto",
           display: "flex",
           flexDirection: "column",
-          gap: 12,
-          paddingRight: 4,
+          gap: 14,
+          paddingRight: 6,
           scrollBehavior: "smooth",
         }}
       >
@@ -346,7 +346,7 @@ export default function Chat() {
               alignItems: "flex-start",
               gap: 10,
               alignSelf: m.from === "bot" ? "flex-start" : "flex-end",
-              maxWidth: "80%",
+              maxWidth: "85%",
               animation: "slideUp .35s ease",
             }}
           >
@@ -354,8 +354,8 @@ export default function Chat() {
               <img
                 src="/foto.png"
                 style={{
-                  width: 32,
-                  height: 32,
+                  width: 34,
+                  height: 34,
                   borderRadius: "50%",
                   flexShrink: 0,
                 }}
@@ -363,12 +363,12 @@ export default function Chat() {
             )}
             <div
               style={{
-                background: m.from === "bot" ? "#F8F8FA" : "#3D7BFF",
+                background: m.from === "bot" ? "#F7F7FA" : "#3D7BFF",
                 color: m.from === "bot" ? "#1C1C1E" : "#fff",
-                padding: "10px 14px",
-                borderRadius: 16,
-                fontSize: "clamp(13px, 2vw, 15px)",
-                lineHeight: "1.4",
+                padding: "12px 16px",
+                borderRadius: 18,
+                fontSize: "clamp(15px, 3vw, 17px)",
+                lineHeight: "1.5",
                 boxShadow:
                   m.from === "user"
                     ? "0 4px 14px rgba(61,123,255,0.26)"
@@ -385,7 +385,7 @@ export default function Chat() {
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <img
               src="/foto.png"
-              style={{ width: 28, height: 28, borderRadius: "50%" }}
+              style={{ width: 30, height: 30, borderRadius: "50%" }}
             />
             <div
               style={{
@@ -393,7 +393,7 @@ export default function Chat() {
                 padding: "8px 12px",
                 borderRadius: 12,
                 display: "flex",
-                gap: 4,
+                gap: 5,
               }}
             >
               <span className="dot" />
@@ -405,13 +405,13 @@ export default function Chat() {
       </div>
 
       {/* Input / Botões */}
-      <div style={{ marginTop: 8 }}>
+      <div style={{ marginTop: 10 }}>
         {step?.options && !typing ? (
           <div
             style={{
               display: "flex",
               flexWrap: "wrap",
-              gap: 8,
+              gap: 10,
               justifyContent: "center",
             }}
           >
@@ -420,13 +420,14 @@ export default function Chat() {
                 key={opt}
                 onClick={() => handleOption(opt)}
                 style={{
-                  padding: "10px 14px",
+                  padding: "12px 18px",
                   background: "#fff",
                   border: "1px solid #D9D9DD",
-                  borderRadius: 12,
+                  borderRadius: 14,
                   cursor: "pointer",
-                  fontSize: "clamp(13px, 2vw, 15px)",
-                  transition: ".25s",
+                  fontSize: "clamp(15px, 3vw, 17px)",
+                  transition: "0.25s",
+                  fontWeight: 500,
                 }}
               >
                 {opt}
@@ -447,12 +448,15 @@ export default function Chat() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
               placeholder="Digite sua resposta..."
+              inputMode="text"
               style={{
                 flex: 1,
-                padding: "10px 12px",
-                borderRadius: 12,
+                padding: "14px 16px",
+                borderRadius: 14,
                 border: "1px solid #ddd",
-                fontSize: "clamp(13px, 2vw, 15px)",
+                fontSize: "16px", // 👈 evita zoom no mobile
+                outline: "none",
+                fontWeight: 500,
               }}
             />
             <button
@@ -460,13 +464,14 @@ export default function Chat() {
               style={{
                 background: "#3D7BFF",
                 color: "#fff",
-                padding: "10px 20px",
-                borderRadius: 12,
+                padding: "12px 22px",
+                borderRadius: 14,
                 border: "none",
                 cursor: "pointer",
-                fontSize: "clamp(13px, 2vw, 15px)",
+                fontSize: "clamp(15px, 3vw, 17px)",
+                fontWeight: 600,
                 boxShadow: "0 6px 14px rgba(61,123,255,0.26)",
-                transition: ".25s",
+                transition: "0.25s",
               }}
             >
               Enviar
@@ -478,8 +483,8 @@ export default function Chat() {
       <style>
         {`
           .dot {
-            width: 6px;
-            height: 6px;
+            width: 7px;
+            height: 7px;
             background: #999;
             border-radius: 50%;
             animation: typing 1s infinite;
@@ -487,7 +492,11 @@ export default function Chat() {
           .dot:nth-child(2) { animation-delay: 0.2s; }
           .dot:nth-child(3) { animation-delay: 0.4s; }
 
-          @keyframes typing { 0%, 80%, 100% {opacity: .3;} 40% {opacity: 1;} }
+          @keyframes typing { 
+            0%, 80%, 100% {opacity: .3;} 
+            40% {opacity: 1;} 
+          }
+
           @keyframes slideUp { 
             from { transform: translateY(8px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
@@ -495,9 +504,15 @@ export default function Chat() {
 
           @media (max-width: 600px) {
             div[style*="maxWidth: 800px"] {
-              height: 90vh !important;
-              padding: 14px !important;
+              height: 92vh !important;
+              padding: 16px !important;
               border-radius: 16px !important;
+            }
+            button {
+              font-size: 16px !important;
+            }
+            input {
+              font-size: 16px !important; /* 👈 garante sem zoom */
             }
           }
         `}

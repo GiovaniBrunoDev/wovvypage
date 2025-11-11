@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 interface Ctx {
   name?: string;
   email?: string;
+  whatsapp?: string;
+  website?: string;
   platform?: string;
   goal?: string;
 }
@@ -29,7 +31,8 @@ interface Message {
 export const flow: Step[] = [
   {
     id: "welcome",
-     message: "Olá! 👋 Sou o Giovani, fundador da Wovvy. Por aqui, você vai receber as instruções de instalação pro seu e-commerce.",
+    message:
+      "Olá! 👋 Sou o Giovani, fundador da Wovvy. Por aqui, você vai receber as instruções de instalação pro seu e-commerce.",
     next: "askName",
   },
   {
@@ -40,7 +43,8 @@ export const flow: Step[] = [
   },
   {
     id: "greetUser",
-     message: (ctx: Ctx) => `Ótimo, ${ctx.name}! Para iniciarmos, preciso de algumas informações rápidas, ok?`,
+    message: (ctx: Ctx) =>
+      `Ótimo, ${ctx.name}! Para iniciarmos, preciso de algumas informações rápidas, ok?`,
     next: "askEmail",
   },
   {
@@ -60,6 +64,46 @@ export const flow: Step[] = [
   {
     id: "emailAccepted",
     message: "Perfeito! 📩",
+    next: "askWhatsapp",
+  },
+  {
+    id: "askWhatsapp",
+    message: "Agora me passa o número do seu WhatsApp (com DDD)?",
+    input: "whatsapp",
+    next: (ctx) =>
+      /^\d{10,13}$/.test(ctx.whatsapp?.replace(/\D/g, "") ?? "")
+        ? "whatsappAccepted"
+        : "whatsappRetry",
+  },
+  {
+    id: "whatsappRetry",
+    message:
+      "Ops! Esse número parece incompleto. Pode me mandar novamente, incluindo o DDD?",
+    next: "askWhatsapp",
+  },
+  {
+    id: "whatsappAccepted",
+    message: "Show! 📱",
+    next: "askWebsite",
+  },
+  {
+    id: "askWebsite",
+    message: "Qual é o link do site da sua loja? 🌐",
+    input: "website",
+    next: (ctx) =>
+      ctx.website?.includes(".") && ctx.website?.length > 6
+        ? "websiteAccepted"
+        : "websiteRetry",
+  },
+  {
+    id: "websiteRetry",
+    message:
+      "Hmm... esse link parece estranho. Pode enviar o endereço completo? (ex: https://minhaloja.com)",
+    next: "askWebsite",
+  },
+  {
+    id: "websiteAccepted",
+    message: "Perfeito, obrigado! 🙌",
     next: "askPlatform",
   },
   {
@@ -114,6 +158,7 @@ export const flow: Step[] = [
     end: true,
   },
 ];
+
 
 // 💬 Componente principal
 export default function Chat() {
@@ -234,194 +279,232 @@ export default function Chat() {
 
   const step = flow.find((s) => s.id === currentStep);
 
-  return (
+ return (
+  <div
+    style={{
+      width: "100vw",
+      height: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundImage: `url("/fundo.png")`, // 🖼️ substitua pelo caminho correto
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      padding: "16px",
+      position: "relative",
+      overflow: "hidden",
+    }}
+  >
+    {/* Overlay translúcido */}
     <div
       style={{
-        width: "100vw",
-        height: "100vh",
+        position: "absolute",
+        inset: 0,
+        background: "rgba(255,255,255,0.35)",
+        backdropFilter: "blur(6px)",
+        zIndex: 0,
+      }}
+    />
+
+    <div
+      style={{
+        width: "100%",
+        maxWidth: 800,
+        height: "90vh",
+        maxHeight: 680,
+        background: "#fff",
+        borderRadius: 20,
         display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#F3F5F9",
-        padding: 20,
+        flexDirection: "column",
+        padding: "20px",
+        boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
+        border: "1px solid rgba(0,0,0,0.04)",
+        fontFamily: "Inter, sans-serif",
+        zIndex: 1,
+        overflow: "hidden",
       }}
     >
+      {/* Mensagens */}
       <div
+        ref={containerRef}
         style={{
-          width: "80vw",           // 🟢 alterado de 90vw → 80vw
-          maxWidth: 800,           // 🟢 aumentado proporcionalmente
-          height: "60vh",          // 🟢 alterado de 80vh → 60vh
-          background: "#fff",
-          borderRadius: 26,
+          flex: 1,
+          overflowY: "auto",
           display: "flex",
           flexDirection: "column",
-          padding: "28px 30px",
-          boxShadow: "0 18px 60px rgba(0,0,0,0.08)",
-          border: "1px solid rgba(0,0,0,0.04)",
-          fontFamily: "Inter, sans-serif",
+          gap: 12,
+          paddingRight: 4,
+          scrollBehavior: "smooth",
         }}
       >
-        {/* Área de mensagens */}
-        <div
-          ref={containerRef}
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            display: "flex",
-            flexDirection: "column",
-            gap: 14,
-          }}
-        >
-          {messages.map((m, i) => (
+        {messages.map((m, i) => (
+          <div
+            key={i}
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 10,
+              alignSelf: m.from === "bot" ? "flex-start" : "flex-end",
+              maxWidth: "80%",
+              animation: "slideUp .35s ease",
+            }}
+          >
+            {m.from === "bot" && (
+              <img
+                src="/foto.png"
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: "50%",
+                  flexShrink: 0,
+                }}
+              />
+            )}
             <div
-              key={i}
               style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 10,
-                alignSelf: m.from === "bot" ? "flex-start" : "flex-end",
-                maxWidth: "75%",
-                animation: "slideUp .35s ease",
+                background: m.from === "bot" ? "#F8F8FA" : "#3D7BFF",
+                color: m.from === "bot" ? "#1C1C1E" : "#fff",
+                padding: "10px 14px",
+                borderRadius: 16,
+                fontSize: "clamp(13px, 2vw, 15px)",
+                lineHeight: "1.4",
+                boxShadow:
+                  m.from === "user"
+                    ? "0 4px 14px rgba(61,123,255,0.26)"
+                    : "none",
+                wordBreak: "break-word",
               }}
             >
-              {m.from === "bot" && (
-                <img
-                  src="https://i.ibb.co/ft5hyvN/avatar-bot.png"
-                  style={{ width: 34, height: 34, borderRadius: "50%" }}
-                />
-              )}
-              <div
-                style={{
-                  background: m.from === "bot" ? "#F8F8FA" : "#3D7BFF",
-                  color: m.from === "bot" ? "#1C1C1E" : "#fff",
-                  padding: "12px 16px",
-                  borderRadius: 18,
-                  fontSize: 15,
-                  lineHeight: "1.45",
-                  boxShadow:
-                    m.from === "user"
-                      ? "0 4px 14px rgba(61,123,255,0.26)"
-                      : "none",
-                }}
-              >
-                {m.text}
-              </div>
+              {m.text}
             </div>
-          ))}
+          </div>
+        ))}
 
-          {typing && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <img
-                src="https://i.ibb.co/ft5hyvN/avatar-bot.png"
-                style={{ width: 32, height: 32, borderRadius: "50%" }}
-              />
-              <div
-                style={{
-                  background: "#F8F8FA",
-                  padding: "10px 14px",
-                  borderRadius: 14,
-                  display: "flex",
-                  gap: 4,
-                }}
-              >
-                <span className="dot" />
-                <span className="dot" />
-                <span className="dot" />
-              </div>
+        {typing && (
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <img
+              src="/foto.png"
+              style={{ width: 28, height: 28, borderRadius: "50%" }}
+            />
+            <div
+              style={{
+                background: "#F8F8FA",
+                padding: "8px 12px",
+                borderRadius: 12,
+                display: "flex",
+                gap: 4,
+              }}
+            >
+              <span className="dot" />
+              <span className="dot" />
+              <span className="dot" />
             </div>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
 
-        {/* Input / Botões */}
-        <div style={{ marginTop: 8 }}>
-          {step?.options && !typing ? (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {step.options.map((opt) => (
-                <button
-                  key={opt}
-                  onClick={() => handleOption(opt)}
-                  style={{
-                    padding: "12px 16px",
-                    background: "#fff",
-                    border: "1px solid #D9D9DD",
-                    borderRadius: 14,
-                    cursor: "pointer",
-                    fontSize: 15,
-                    transition: ".25s",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.borderColor = "#3D7BFF")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.borderColor = "#D9D9DD")
-                  }
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div style={{ display: "flex", gap: 8 }}>
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                placeholder="Digite sua resposta..."
-                style={{
-                  flex: 1,
-                  padding: 12,
-                  borderRadius: 14,
-                  border: "1px solid #ddd",
-                  fontSize: 15,
-                }}
-              />
+      {/* Input / Botões */}
+      <div style={{ marginTop: 8 }}>
+        {step?.options && !typing ? (
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 8,
+              justifyContent: "center",
+            }}
+          >
+            {step.options.map((opt) => (
               <button
-                onClick={handleSend}
+                key={opt}
+                onClick={() => handleOption(opt)}
                 style={{
-                  background: "#3D7BFF",
-                  color: "#fff",
-                  padding: "0 22px",
-                  borderRadius: 14,
-                  border: "none",
+                  padding: "10px 14px",
+                  background: "#fff",
+                  border: "1px solid #D9D9DD",
+                  borderRadius: 12,
                   cursor: "pointer",
-                  fontSize: 15,
-                  boxShadow: "0 6px 14px rgba(61,123,255,0.26)",
+                  fontSize: "clamp(13px, 2vw, 15px)",
                   transition: ".25s",
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.transform = "translateY(-1px)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.transform = "translateY(0)")
-                }
               >
-                Enviar
+                {opt}
               </button>
-            </div>
-          )}
-        </div>
-
-        <style>
-          {`
-            .dot {
-              width: 6px;
-              height: 6px;
-              background: #999;
-              border-radius: 50%;
-              animation: typing 1s infinite;
-            }
-            .dot:nth-child(2) { animation-delay: 0.2s; }
-            .dot:nth-child(3) { animation-delay: 0.4s; }
-
-            @keyframes typing { 0%, 80%, 100% {opacity: .3;} 40% {opacity: 1;} }
-
-            @keyframes slideUp { 
-              from { transform: translateY(8px); opacity: 0; }
-              to { transform: translateY(0); opacity: 1; }
-            }
-          `}
-        </style>
+            ))}
+          </div>
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              placeholder="Digite sua resposta..."
+              style={{
+                flex: 1,
+                padding: "10px 12px",
+                borderRadius: 12,
+                border: "1px solid #ddd",
+                fontSize: "clamp(13px, 2vw, 15px)",
+              }}
+            />
+            <button
+              onClick={handleSend}
+              style={{
+                background: "#3D7BFF",
+                color: "#fff",
+                padding: "10px 20px",
+                borderRadius: 12,
+                border: "none",
+                cursor: "pointer",
+                fontSize: "clamp(13px, 2vw, 15px)",
+                boxShadow: "0 6px 14px rgba(61,123,255,0.26)",
+                transition: ".25s",
+              }}
+            >
+              Enviar
+            </button>
+          </div>
+        )}
       </div>
+
+      <style>
+        {`
+          .dot {
+            width: 6px;
+            height: 6px;
+            background: #999;
+            border-radius: 50%;
+            animation: typing 1s infinite;
+          }
+          .dot:nth-child(2) { animation-delay: 0.2s; }
+          .dot:nth-child(3) { animation-delay: 0.4s; }
+
+          @keyframes typing { 0%, 80%, 100% {opacity: .3;} 40% {opacity: 1;} }
+          @keyframes slideUp { 
+            from { transform: translateY(8px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+
+          @media (max-width: 600px) {
+            div[style*="maxWidth: 800px"] {
+              height: 90vh !important;
+              padding: 14px !important;
+              border-radius: 16px !important;
+            }
+          }
+        `}
+      </style>
     </div>
-  );
+  </div>
+);
+
+
 }

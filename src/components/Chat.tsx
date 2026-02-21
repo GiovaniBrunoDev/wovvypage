@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
-// 🧠 Tipagens
+/* -------------------- TIPAGENS -------------------- */
+
 interface Ctx {
   name?: string;
   email?: string;
@@ -27,7 +28,8 @@ interface Message {
   text: string;
 }
 
-// 💬 Fluxo (mantive o seu)
+/* -------------------- FLOW -------------------- */
+
 export const flow: Step[] = [
   { id: "welcome", message: "Olá! 👋 Sou o Giovani, fundador da Wovvy. Por aqui, você vai receber as instruções de instalação pro seu e-commerce.", next: "askName" },
   { id: "askName", message: "Antes de começarmos, como você se chama?", input: "name", next: "greetUser" },
@@ -48,22 +50,32 @@ export const flow: Step[] = [
   { id: "end", messages: ["Em alguns segundos, alguém da equipe vai te chamar no WhatsApp."], end: true },
 ];
 
-// 💬 Componente principal (com correção do avatar)
+/* -------------------- COMPONENTE -------------------- */
+
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [ctx, setCtx] = useState<Ctx>({});
   const [currentStep, setCurrentStep] = useState("welcome");
   const [typing, setTyping] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const avatarRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const avatarRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const startedRef = useRef(false);
 
-  const resolveNext = (next?: NextType, newCtx = ctx) => (typeof next === "function" ? next(newCtx) : next);
-  const pushMessage = (m: Message) => setMessages((prev) => [...prev, m]);
+  const targetY = useRef<number>(0);
+  const currentY = useRef<number>(0);
+
+
+  const resolveNext = useCallback(
+    (next?: NextType, newCtx = ctx) =>
+      typeof next === "function" ? next(newCtx) : next,
+    [ctx]
+  );
+
+  const pushMessage = (m: Message) =>
+    setMessages((prev) => [...prev, m]);
 
   const sendMessagesSequence = async (msgs: string[]) => {
     for (const msg of msgs) {
@@ -76,33 +88,33 @@ export default function Chat() {
     }
   };
 
-  const runStep = async (stepId: string, context = ctx) => {
-    const step = flow.find((s) => s.id === stepId);
-    if (!step) return;
+  const runStep = useCallback(
+    async (stepId: string, context: Ctx) => {
+      const step = flow.find((s) => s.id === stepId);
+      if (!step) return;
 
-    if (step.messages) {
-      await sendMessagesSequence(step.messages);
-    } else if (step.message) {
-      setTyping(true);
-      const text = typeof step.message === "function" ? step.message(context) : step.message;
-      const delay = Math.min(900 + text.length * 6, 1400);
-      await new Promise((r) => setTimeout(r, delay));
-      pushMessage({ from: "bot", text });
-      setTyping(false);
-    }
+      if (step.messages) {
+        await sendMessagesSequence(step.messages);
+      } else if (step.message) {
+        setTyping(true);
+        const text =
+          typeof step.message === "function"
+            ? step.message(context)
+            : step.message;
 
-    if (!step.input && !step.end && step.next && !isTransitioning) {
-      const next = resolveNext(step.next, context);
-      if (next && next !== step.id) {
-        setIsTransitioning(true);
-        setTimeout(() => {
-          setIsTransitioning(false);
-          setCurrentStep(next);
-          runStep(next, context);
-        }, 500);
+        const delay = Math.min(900 + text.length * 6, 1400);
+        await new Promise((r) => setTimeout(r, delay));
+        pushMessage({ from: "bot", text });
+        setTyping(false);
       }
-    }
-  };
+
+      if (!step.input && !step.end && step.next) {
+        const next = resolveNext(step.next, context);
+        if (next) setCurrentStep(next);
+      }
+    },
+    [resolveNext]
+  );
 
   const handleSend = () => {
     const step = flow.find((s) => s.id === currentStep);
@@ -116,14 +128,7 @@ export default function Chat() {
     setCtx(newCtx);
 
     const next = resolveNext(step.next, newCtx);
-    if (next && next !== currentStep && !isTransitioning) {
-      setIsTransitioning(true);
-      setCurrentStep(next);
-      setTimeout(() => {
-        setIsTransitioning(false);
-        runStep(next, newCtx);
-      }, 350);
-    }
+    if (next) setCurrentStep(next);
   };
 
   const handleOption = (opt: string) => {
@@ -131,98 +136,94 @@ export default function Chat() {
     if (!step) return;
 
     pushMessage({ from: "user", text: opt });
+
     const newCtx = step.input ? { ...ctx, [step.input]: opt } : ctx;
     setCtx(newCtx);
 
     const next = resolveNext(step.next, newCtx);
-    if (next && !isTransitioning) {
-      setIsTransitioning(true);
-      setCurrentStep(next);
-      setTimeout(() => {
-        setIsTransitioning(false);
-        runStep(next, newCtx);
-      }, 350);
-    }
+    if (next) setCurrentStep(next);
   };
 
   useEffect(() => {
     if (!startedRef.current) {
       startedRef.current = true;
-      setTimeout(() => runStep("welcome"), 300);
+      runStep("welcome", {});
     }
-  }, []);
+  }, [runStep]);
 
-  // rolar para baixo sempre que muda (mensagens/typing)
+  useEffect(() => {
+    const step = flow.find((s) => s.id === currentStep);
+    if (step && currentStep !== "welcome") {
+      runStep(currentStep, ctx);
+    }
+  }, [currentStep]);
+
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [messages, typing]);
 
-  // --- AVATAR: posicionamento suave com lerp + requestAnimationFrame ---
-  useEffect(() => {
+  /* -------------------- AVATAR ENGINE ESTÁVEL -------------------- */
+
+  const updateTarget = useCallback(() => {
     const container = containerRef.current;
     const avatar = avatarRef.current;
     if (!container || !avatar) return;
 
-    // estado interno para interpolation
-    let currentY = 0;
-    let targetY = 0;
-    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+    const botMsgs =
+      container.querySelectorAll<HTMLElement>(".bot-msg");
+    if (!botMsgs.length) return;
 
-    const updateTarget = () => {
-      // pega última mensagem do bot
-      const botMsgs = container.querySelectorAll<HTMLElement>(".bot-msg");
-      if (!botMsgs || botMsgs.length === 0) {
-        targetY = 0;
-        return;
-      }
-      const last = botMsgs[botMsgs.length - 1];
-      const lastRect = last.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
+    const last = botMsgs[botMsgs.length - 1];
 
-      // queremos o centro vertical do avatar alinhado perto do meio da bolha
-      const desiredCenter = lastRect.top + lastRect.height / 2;
-      // transform para coordenadas relativas ao container
-      const relativeCenter = desiredCenter - containerRect.top;
+    // posição RELATIVA ao container
+    const center =
+      last.offsetTop +
+      last.offsetHeight / 2;
 
-      // offset para posicionar avatar com algum padding (mantém dentro do container)
-      const avatarHalf = avatar.offsetHeight / 2;
-      const minY = 8; // não subir demais
-      const maxY = container.clientHeight - avatar.offsetHeight - 8; // não descer demais
+    const avatarHalf = avatar.offsetHeight / 2;
 
-      // converte center -> top da avatar (centralizando)
-      let computed = relativeCenter - avatarHalf;
-      if (computed < minY) computed = minY;
-      if (computed > maxY) computed = maxY;
+    let computed = center - avatarHalf;
 
-      targetY = computed;
-    };
+    computed = Math.max(
+      8,
+      Math.min(
+        computed,
+        container.scrollHeight - avatar.offsetHeight - 8
+      )
+    );
 
-    // animação contínua para suavizar movimento (lerp)
+    targetY.current = computed;
+  }, []);
+
+  useEffect(() => {
+    const avatar = avatarRef.current;
+    const container = containerRef.current;
+    if (!avatar || !container) return;
+
     const animate = () => {
-      updateTarget();
-      // suaviza: t controla a velocidade (0.12 = bem suave)
-      currentY = lerp(currentY, targetY, 0.12);
-      avatar.style.transform = `translateY(${Math.round(currentY)}px)`;
+      const diff = targetY.current - currentY.current;
+      currentY.current += diff * 0.18;
+      avatar.style.transform = `translateY(${currentY.current}px)`;
       rafRef.current = requestAnimationFrame(animate);
     };
 
-    // inicia
     rafRef.current = requestAnimationFrame(animate);
+    container.addEventListener("scroll", updateTarget, {
+      passive: true,
+    });
+    window.addEventListener("resize", updateTarget);
 
-    // atualiza target quando rolar/resize/mudança de mensagens
-    const onScroll = () => updateTarget();
-    const onResize = () => updateTarget();
-    container.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onResize);
-
-    // cleanup
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      container.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onResize);
+      container.removeEventListener("scroll", updateTarget);
+      window.removeEventListener("resize", updateTarget);
     };
+  }, [updateTarget]);
+
+  useEffect(() => {
+    updateTarget();
   }, [messages, typing]);
 
   const step = flow.find((s) => s.id === currentStep);
@@ -231,9 +232,9 @@ export default function Chat() {
     <div
       style={{
         width: "100vw",
-        height: "100vh",
+        height: "100dvh",
         display: "flex",
-        alignItems: "center",
+        alignItems: "stretch",
         justifyContent: "center",
         backgroundImage: `url("/fundo.png")`,
         backgroundSize: "cover",
@@ -245,6 +246,7 @@ export default function Chat() {
         fontFamily: "Inter, sans-serif",
       }}
     >
+      {/* Overlay blur */}
       <div
         style={{
           position: "absolute",
@@ -255,24 +257,8 @@ export default function Chat() {
         }}
       />
 
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 800,
-          height: "90vh",
-          maxHeight: 680,
-          background: "#fff",
-          borderRadius: 20,
-          display: "flex",
-          flexDirection: "column",
-          padding: "22px",
-          boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
-          border: "1px solid rgba(0,0,0,0.04)",
-          zIndex: 1,
-          overflow: "hidden",
-          position: "relative",
-        }}
-      >
+      {/* ===== CHAT CARD ===== */}
+      <div className="chat-card">
         {/* Área das mensagens */}
         <div
           ref={containerRef}
@@ -281,13 +267,14 @@ export default function Chat() {
             overflowY: "auto",
             display: "flex",
             flexDirection: "column",
-            gap: 14,
+            gap: 16,
             paddingRight: 6,
+            paddingBottom: 40, // 👈 ESSA é a chave
             scrollBehavior: "smooth",
             position: "relative",
           }}
         >
-          {/* Avatar flutuante do bot */}
+          {/* Avatar flutuante */}
           <div
             ref={avatarRef}
             style={{
@@ -295,7 +282,6 @@ export default function Chat() {
               left: 8,
               top: 0,
               transform: "translateY(0px)",
-              transition: "transform 160ms linear",
               zIndex: 2,
               width: 56,
               height: 56,
@@ -326,22 +312,29 @@ export default function Chat() {
               className={m.from === "bot" ? "bot-msg" : ""}
               style={{
                 display: "flex",
-                justifyContent: m.from === "bot" ? "flex-start" : "flex-end",
+                justifyContent:
+                  m.from === "bot" ? "flex-start" : "flex-end",
                 animation: "fadeSlide 0.45s ease",
               }}
             >
               <div
                 style={{
-                  background: m.from === "bot" ? "#F7F7FA" : "#3D7BFF",
-                  color: m.from === "bot" ? "#1C1C1E" : "#fff",
+                  background:
+                    m.from === "bot" ? "#F7F7FA" : "#3D7BFF",
+                  color:
+                    m.from === "bot" ? "#1C1C1E" : "#fff",
                   padding: "12px 16px",
                   borderRadius: 18,
                   fontSize: "clamp(15px, 3vw, 17px)",
                   lineHeight: "1.5",
                   wordBreak: "break-word",
                   maxWidth: "80%",
-                  marginLeft: m.from === "bot" ? "72px" : "0",
-                  boxShadow: m.from === "user" ? "0 4px 14px rgba(61,123,255,0.26)" : "none",
+                  marginLeft:
+                    m.from === "bot" ? "72px" : "0",
+                  boxShadow:
+                    m.from === "user"
+                      ? "0 4px 14px rgba(61,123,255,0.26)"
+                      : "none",
                 }}
               >
                 {m.text}
@@ -360,15 +353,7 @@ export default function Chat() {
                 animation: "fadeSlide 0.45s ease",
               }}
             >
-              <div
-                style={{
-                  background: "#F8F8FA",
-                  padding: "8px 12px",
-                  borderRadius: 12,
-                  display: "flex",
-                  gap: 5,
-                }}
-              >
+              <div className="typing-box">
                 <span className="dot" />
                 <span className="dot" />
                 <span className="dot" />
@@ -377,62 +362,146 @@ export default function Chat() {
           )}
         </div>
 
-        {/* Input / Opções */}
-        <div style={{ marginTop: 10 }}>
+        {/* ===== INPUT / OPÇÕES ===== */}
+        <div style={{ marginTop: 30 }}>
           {step?.options && !typing ? (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "center" }}>
+            <div className="options">
               {step.options.map((opt) => (
                 <button
                   key={opt}
                   onClick={() => handleOption(opt)}
-                  style={{
-                    padding: "12px 18px",
-                    background: "#fff",
-                    border: "1px solid #D9D9DD",
-                    borderRadius: 14,
-                    cursor: "pointer",
-                    fontSize: "clamp(15px, 3vw, 17px)",
-                    transition: "0.25s",
-                    fontWeight: 500,
-                  }}
                 >
                   {opt}
                 </button>
               ))}
             </div>
           ) : (
-            <div style={{ display: "flex", gap: 8, alignItems: "center", width: "100%" }}>
+            <div className="input-row">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && handleSend()
+                }
                 placeholder="Digite sua resposta..."
-                style={{ flex: 1, padding: "14px 16px", borderRadius: 14, border: "1px solid #ddd", fontSize: 16, outline: "none", fontWeight: 500 }}
               />
-              <button
-                onClick={handleSend}
-                style={{ background: "#3D7BFF", color: "#fff", padding: "12px 22px", borderRadius: 14, border: "none", cursor: "pointer", fontWeight: 600, boxShadow: "0 6px 14px rgba(61,123,255,0.26)", transition: "0.25s" }}
-              >
+              <button onClick={handleSend}>
                 Enviar
               </button>
             </div>
           )}
         </div>
-
-        <style>{`
-          .dot { width: 7px; height: 7px; background: #999; border-radius: 50%; animation: typing 1s infinite; }
-          .dot:nth-child(2) { animation-delay: 0.2s; }
-          .dot:nth-child(3) { animation-delay: 0.4s; }
-          @keyframes typing { 0%,80%,100% {opacity:.3;} 40% {opacity:1;} }
-          @keyframes fadeSlide { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-          @media (max-width: 600px) {
-            div[style*="maxWidth: 800px"] { height: 92vh !important; padding: 16px !important; border-radius: 16px !important; }
-            button { font-size: 16px !important; }
-            input { font-size: 16px !important; }
-          }
-        `}</style>
       </div>
+
+      {/* ===== CSS ===== */}
+      <style>{`
+     .chat-card {
+  width: 100%;
+  max-width: 1300px;     /* mais largo */
+  height: 90dvh;        /* ocupa quase tudo */
+  background: #fff;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  padding: 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+  border: 1px solid rgba(0,0,0,0.04);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+      .typing-box {
+        background: #F8F8FA;
+        padding: 8px 12px;
+        border-radius: 12px;
+        display: flex;
+        gap: 5px;
+      }
+
+      .dot {
+        width: 7px;
+        height: 7px;
+        background: #999;
+        border-radius: 50%;
+        animation: typing 1s infinite;
+      }
+
+      .dot:nth-child(2) { animation-delay: .2s; }
+      .dot:nth-child(3) { animation-delay: .4s; }
+
+      @keyframes typing {
+        0%,80%,100% {opacity:.3;}
+        40% {opacity:1;}
+      }
+
+      @keyframes fadeSlide {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+      }
+
+      .options button {
+        padding: 12px 18px;
+        background: #fff;
+        border: 1px solid #D9D9DD;
+        border-radius: 14px;
+        cursor: pointer;
+        font-size: clamp(15px, 3vw, 17px);
+        font-weight: 500;
+        transition: 0.25s;
+      }
+
+      .input-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        width: 100%;
+      }
+
+      .input-row input {
+        flex: 1;
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+        outline: none;
+        font-weight: 500;
+      }
+
+      .input-row button {
+        background: #3D7BFF;
+        color: #fff;
+        padding: 12px 22px;
+        border-radius: 14px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        box-shadow: 0 6px 14px rgba(61,123,255,0.26);
+        transition: 0.25s;
+      }
+
+      /* MOBILE */
+      @media (max-width: 600px) {
+  .chat-card {
+    height: 94dvh;
+          max-height: none;
+          border-radius: 0;
+          padding: 16px;
+        }
+
+        .options button,
+        .input-row input {
+          font-size: 16px;
+        }
+      }
+    `}</style>
     </div>
   );
 }

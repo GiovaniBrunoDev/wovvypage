@@ -17,8 +17,10 @@ export default function LiveshopWidget() {
   const [isMuted, setIsMuted] = useState(true);
   const [progress, setProgress] = useState(0);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [showProductCard, setShowProductCard] = useState(false);
   const videoRef = useRef(null);
   const progressInterval = useRef(null);
+
 
   const playVideo = (index) => {
     setCurrentIndex(index);
@@ -28,6 +30,18 @@ export default function LiveshopWidget() {
       video.play();
     }
   };
+
+  useEffect(() => {
+  if (showModal) {
+    setShowProductCard(false);
+
+    const timer = setTimeout(() => {
+      setShowProductCard(true);
+    }, 2500); // aparece depois de 1.5s
+
+    return () => clearTimeout(timer);
+  }
+}, [showModal, currentIndex]);
 
   useEffect(() => {
     if (showModal) {
@@ -205,241 +219,170 @@ export default function LiveshopWidget() {
           onClick={() => setShowModal(false)}
           style={{
             position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            background: "#000",
+            inset: 0,
+            background: "rgba(0,0,0,0.85)",
+            backdropFilter: "blur(6px)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             zIndex: 2147483647,
-            transition: "opacity 0.4s ease",
           }}
         >
-          {/* ===== VIDEO ===== */}
-          <video
-            ref={videoRef}
-            src={VIDEOS[currentIndex]}
-            autoPlay
-            playsInline
-            loop
-            muted={isMuted}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
-          />
-
-          {/* ===== BARRA DE PROGRESSO ===== */}
+          {/* ===== CONTAINER 9:16 ===== */}
           <div
+            onClick={(e) => e.stopPropagation()}
             style={{
-              position: "absolute",
-              top: "10px",
-              left: "10px",
-              right: "10px",
-              height: "3px",
-              background: "rgba(255,255,255,0.3)",
-              borderRadius: "2px",
+              position: "relative",
+              height: window.innerWidth < 768 ? "100%" : "100vh",
+              aspectRatio: "9 / 16",
+              maxWidth: "100vw",
+              background: "#000",
+              borderRadius: window.innerWidth < 768 ? "0px" : "20px",
               overflow: "hidden",
+              boxShadow:
+                window.innerWidth < 768
+                  ? "none"
+                  : "0 30px 80px rgba(0,0,0,0.6)",
             }}
           >
+            {/* ===== VIDEO ===== */}
+            <video
+              ref={videoRef}
+              src={VIDEOS[currentIndex]}
+              autoPlay
+              playsInline
+              loop
+              muted={isMuted}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+
+            {/* ===== BARRA DE PROGRESSO ===== */}
             <div
               style={{
-                width: `${progress}%`,
-                height: "100%",
-                background: "#fff",
-                transition: "width 0.1s linear",
+                position: "absolute",
+                top: "10px",
+                left: "10px",
+                right: "10px",
+                height: "3px",
+                background: "rgba(255,255,255,0.3)",
+                borderRadius: "2px",
+                overflow: "hidden",
               }}
-            />
-          </div>
-
-          {/* ===== CARD DO PRODUTO ===== */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: "60px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              background: "rgba(20,20,20,0.6)",
-              backdropFilter: "blur(10px)",
-              borderRadius: "16px",
-              color: "#fff",
-              padding: "14px 16px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              width: "320px",
-              gap: "10px",
-              fontFamily: "sans-serif",
-              textAlign: "center",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <img
-                src={PRODUCT.img}
-                alt={PRODUCT.name}
+            >
+              <div
                 style={{
-                  width: "60px",
-                  height: "60px",
-                  borderRadius: "10px",
-                  objectFit: "cover",
+                  width: `${progress}%`,
+                  height: "100%",
+                  background: "#fff",
+                  transition: "width 0.1s linear",
                 }}
               />
-              <div>
-                <div style={{ fontWeight: 600, fontSize: "14px" }}>
-                  {PRODUCT.name}
-                </div>
-                <div style={{ fontSize: "14px", opacity: 0.9 }}>
-                  {PRODUCT.price}
-                </div>
-              </div>
             </div>
-            <button
+
+            {/* ===== CARD DO PRODUTO ===== */}
+            {showProductCard && (
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "60px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  background: "rgba(20,20,20,0.6)",
+                  backdropFilter: "blur(10px)",
+                  borderRadius: "16px",
+                  color: "#fff",
+                  padding: "14px 16px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  width: "85%",
+                  maxWidth: "320px",
+                  gap: "10px",
+                  fontFamily: "sans-serif",
+                  textAlign: "center",
+                  animation: "slideUpFade 0.5s ease forwards",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <img
+                    src={PRODUCT.img}
+                    alt={PRODUCT.name}
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      borderRadius: "10px",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: "14px" }}>
+                      {PRODUCT.name}
+                    </div>
+                    <div style={{ fontSize: "14px", opacity: 0.9 }}>
+                      {PRODUCT.price}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  style={{
+                    background: "#3C6A91",
+                    color: "#fff",
+                    border: "none",
+                    padding: "10px 16px",
+                    borderRadius: "10px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    width: "100%",
+                  }}
+                  onClick={() => (window.location.href = PRODUCT.url)}
+                >
+                  Adicionar ao carrinho
+                </button>
+              </div>
+            )}
+            {/* ===== BOTÕES DE AÇÃO (estilo Instagram) ===== */} <div style={{ position: "absolute", right: "20px", bottom: "260px", display: "flex", flexDirection: "column", gap: "22px", zIndex: 10, }} onClick={(e) => e.stopPropagation()} > {/* Curtir */} <ActionButton svg={<path d="M16.5 3.5c-1.74 0-3.41.81-4.5 2.09A6.008 6.008 0 0 0 7.5 3.5C4.42 3.5 2 5.92 2 9c0 5.25 10 11.5 10 11.5s10-6.25 10-11.5c0-3.08-2.42-5.5-5.5-5.5z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />} onClick={() => alert("Curtido! ❤️")} /> {/* Comentar */} <ActionButton svg={<path d="M21 11.5a8.38 8.38 0 0 1-9 8.5c-1.5 0-2.91-.37-4.14-1.02L3 21l1.16-4.1A8.38 8.38 0 0 1 3 11.5c0-4.66 3.82-8.5 9-8.5s9 3.84 9 8.5z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />} onClick={() => alert("Abrir comentários... 💬")} /> {/* Compartilhar */} <ActionButton svg={<> <line x1="22" y1="3" x2="9" y2="15" stroke="white" strokeWidth="2" strokeLinecap="round" /> <polygon points="22 3 15 22 9 15 3 12 22 3" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /> </>} onClick={() => alert("Compartilhar 🔗")} /> {/* Som */} <ActionButton svg={isMuted ? (<> <polygon points="5 9 9 9 13 5 13 19 9 15 5 15 5 9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /> <line x1="19" y1="9" x2="19" y2="15" stroke="white" strokeWidth="2" strokeLinecap="round" /> </>) : (<> <polygon points="5 9 9 9 13 5 13 19 9 15 5 15 5 9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /> <path d="M19 5a7 7 0 0 1 0 14" stroke="white" strokeWidth="2" strokeLinecap="round" /> </>)} onClick={() => setIsMuted((prev) => !prev)} /> </div>
+
+            {/* ===== FECHAR ===== */}
+            <div
+              onClick={() => setShowModal(false)}
               style={{
-                background: "#3C6A91",
+                position: "absolute",
+                top: "20px",
+                right: "12px",
+                width: "26px",
+                height: "26px",
+                borderRadius: "50%",
+                background: "rgba(0,0,0,0.6)",
+                backdropFilter: "blur(4px)",
                 color: "#fff",
-                border: "none",
-                padding: "10px 16px",
-                borderRadius: "10px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 cursor: "pointer",
-                fontSize: "14px",
-                width: "100%",
+                fontSize: "18px",
               }}
-              onClick={() => (window.location.href = PRODUCT.url)}
             >
-              Adicionar ao carrinho
-            </button>
-          </div>
-
-          {/* ===== BOTÕES DE AÇÃO (estilo Instagram) ===== */}
-          <div
-            style={{
-              position: "absolute",
-              right: "20px",
-              bottom: "260px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "22px",
-              zIndex: 10,
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Curtir */}
-            <ActionButton
-              svg={
-                <path
-                  d="M16.5 3.5c-1.74 0-3.41.81-4.5 2.09A6.008 6.008 0 0 0 7.5 3.5C4.42 3.5 2 5.92 2 9c0 5.25 10 11.5 10 11.5s10-6.25 10-11.5c0-3.08-2.42-5.5-5.5-5.5z"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              }
-              onClick={() => alert("Curtido! ❤️")}
-            />
-
-            {/* Comentar */}
-            <ActionButton
-              svg={
-                <path
-                  d="M21 11.5a8.38 8.38 0 0 1-9 8.5c-1.5 0-2.91-.37-4.14-1.02L3 21l1.16-4.1A8.38 8.38 0 0 1 3 11.5c0-4.66 3.82-8.5 9-8.5s9 3.84 9 8.5z"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              }
-              onClick={() => alert("Abrir comentários... 💬")}
-            />
-
-            {/* Compartilhar */}
-            <ActionButton
-              svg={
-                <>
-                  <line
-                    x1="22"
-                    y1="3"
-                    x2="9"
-                    y2="15"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                  <polygon
-                    points="22 3 15 22 9 15 3 12 22 3"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </>
-              }
-              onClick={() => alert("Compartilhar 🔗")}
-            />
-
-            {/* Som */}
-            <ActionButton
-              svg={
-                isMuted ? (
-                  <>
-                    <polygon
-                      points="5 9 9 9 13 5 13 19 9 15 5 15 5 9"
-                      stroke="white"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <line
-                      x1="19"
-                      y1="9"
-                      x2="19"
-                      y2="15"
-                      stroke="white"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </>
-                ) : (
-                  <>
-                    <polygon
-                      points="5 9 9 9 13 5 13 19 9 15 5 15 5 9"
-                      stroke="white"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M19 5a7 7 0 0 1 0 14"
-                      stroke="white"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </>
-                )
-              }
-              onClick={() => setIsMuted((prev) => !prev)}
-            />
-          </div>
-
-          {/* FECHAR */}
-          <div
-            style={{
-              position: "absolute",
-              top: "20px",
-              right: "20px",
-              color: "#fff",
-              fontSize: "30px",
-              cursor: "pointer",
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowModal(false);
-            }}
-          >
-            ✕
+              ✕
+            </div>
+            <style>
+{`
+@keyframes slideUpFade {
+  from {
+    transform: translate(-50%, 40px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0px);
+    opacity: 1;
+  }
+}
+`}
+</style>
           </div>
         </div>
       )}

@@ -16,6 +16,7 @@ export default function LiveshopWidget() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [isMinimized, setIsMinimized] = useState(false);
   const videoRef = useRef(null);
   const progressInterval = useRef(null);
 
@@ -47,111 +48,155 @@ export default function LiveshopWidget() {
 
   return (
     <>
-      {/* ===== BOTÃO FLUTUANTE COM LEGENDA ===== */}
-      <div
-        style={{
-          position: "fixed",
-          bottom: "130px",
-          right: "15px",
-          display: "flex",
-          alignItems: "center",
-          zIndex: 9999,
-          overflow: "visible",
-        }}
-      >
+      {/* ===== WIDGET OU ABA ===== */}
+      {!isMinimized ? (
         <div
           style={{
-            position: "relative",
-            width: "260px", // 👈 largura maior que o botão
-            height: "160px",
-            overflow: "hidden", // 👈 agora funciona
+            position: "fixed",
+            bottom: "130px",
+            right: "15px",
             display: "flex",
-            justifyContent: "flex-end",
             alignItems: "center",
+            zIndex: 9999,
           }}
         >
-          {/* ===== TEXTO QUE PASSA POR TRÁS ===== */}
+          {/* BOTÃO FECHAR PREMIUM */}
           <div
+            onClick={() => setIsMinimized(true)}
             style={{
               position: "absolute",
-              right: "100px",
-              background: "linear-gradient(90deg, #1D4ED8, #3B82F6)",
+              top: "-5px",
+              right: "-5px",
+              width: "20px",
+              height: "20px",
+              borderRadius: "50%",
+              background: "rgba(0,0,0,0.75)",
+              backdropFilter: "blur(6px)",
               color: "#fff",
-              padding: "8px 18px",
-              borderTopLeftRadius: "12px",
-              borderBottomLeftRadius: "12px",
-              borderTopRightRadius: "0px",
-              borderBottomRightRadius: "0px",
-              fontFamily: "Inter, sans-serif",
-              fontSize: "15px",
-              fontWeight: 500,
-              whiteSpace: "nowrap",
-              transform: "translateX(120%)",
-              animation: "slideLeft 4s ease-in-out forwards",
-              animationDelay: "2s", // 👈 espera 2 segundos antes de começar
-              zIndex: 1,
+              fontSize: "10px",
               display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              zIndex: 20,
+              boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "scale(1.1)";
+              e.currentTarget.style.background = "rgba(0,0,0,0.9)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "scale(1)";
+              e.currentTarget.style.background = "rgba(0,0,0,0.75)";
+            }}
+          >
+            ✕
+          </div>
+
+          <div
+            style={{
+              position: "relative",
+              width: "260px",
+              height: "160px",
+              overflow: "hidden",
+              display: "flex",
+              justifyContent: "flex-end",
               alignItems: "center",
             }}
           >
-            Conheça a Wovvy
-          </div>
-
-          {/* ===== BOTÃO (VÍDEO) ===== */}
-          <div
-            onClick={() => setShowModal(true)}
-            style={{
-              width: "100px",
-              height: "160px",
-              borderRadius: "18px",
-              overflow: "hidden",
-              border: "none",
-              cursor: "pointer",
-              boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-              zIndex: 2, // botão acima do texto
-              background: "#000",
-            }}
-          >
-            <video
-              src={VIDEOS[0]}
-              muted
-              autoPlay
-              playsInline
-              loop
+            {/* LEGENDA */}
+            <div
               style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
+                position: "absolute",
+                right: "100px",
+                background: "linear-gradient(90deg, #1D4ED8, #3B82F6)",
+                color: "#fff",
+                padding: "8px 18px",
+                borderTopLeftRadius: "12px",
+                borderBottomLeftRadius: "12px",
+                fontFamily: "Inter, sans-serif",
+                fontSize: "15px",
+                fontWeight: 500,
+                whiteSpace: "nowrap",
+                transform: "translateX(120%)",
+                animation: "slideLeft 4s ease-in-out forwards",
+                animationDelay: "4s",
+                zIndex: 1,
+                display: "flex",
+                alignItems: "center",
               }}
-            />
+            >
+              Conheça a Wovvy
+            </div>
+
+            {/* BOTÃO VÍDEO */}
+            <div
+              onClick={() => setShowModal(true)}
+              style={{
+                width: "100px",
+                height: "160px",
+                borderRadius: "18px",
+                overflow: "hidden",
+                cursor: "pointer",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                zIndex: 2,
+                background: "#000",
+              }}
+            >
+              <video
+                src={VIDEOS[0]}
+                muted
+                autoPlay
+                playsInline
+                loop
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            </div>
           </div>
+
+          {/* KEYFRAMES */}
+          <style>
+            {`
+              @keyframes slideLeft {
+                0% { transform: translateX(120%); }
+                25% { transform: translateX(0%); }
+                75% { transform: translateX(0%); }
+                100% { transform: translateX(120%); }
+              }
+            `}
+          </style>
         </div>
-
-        {/* ===== ANIMAÇÃO ===== */}
-        <style>
-          {`
-@keyframes slideLeft {
-  0% {
-    transform: translateX(120%);
-  }
-  25% {
-    transform: translateX(0%);
-  }
-  75% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(120%);
-  }
-}
-`}
-        </style>
-      </div>
-
-
-
-
-
+      ) : (
+        /* ===== ABA VERTICAL ===== */
+        <div
+          onClick={() => setIsMinimized(false)}
+          style={{
+            position: "fixed",
+            bottom: "150px",
+            right: "0px",
+            background: "linear-gradient(180deg, #1D4ED8, #3B82F6)",
+            color: "#fff",
+            padding: "14px 8px",
+            borderTopLeftRadius: "12px",
+            borderBottomLeftRadius: "12px",
+            writingMode: "vertical-rl",
+            textOrientation: "mixed",
+            fontWeight: 600,
+            fontSize: "14px",
+            cursor: "pointer",
+            boxShadow: "-4px 0 15px rgba(0,0,0,0.3)",
+            zIndex: 9999,
+            transition: "all 0.3s ease",
+          }}
+        >
+          Conheça a Wovvy
+        </div>
+      )}
 
 
       {/* ===== MODAL ===== */}

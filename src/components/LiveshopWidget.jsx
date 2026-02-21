@@ -48,93 +48,105 @@ export default function LiveshopWidget() {
   return (
     <>
       {/* ===== BOTÃO FLUTUANTE COM LEGENDA ===== */}
-<div
-  style={{
-    position: "fixed",
-    bottom: "130px",
-    right: "15px",
-    display: "flex",
-    alignItems: "center",
-    zIndex: 9999,
-    overflow: "visible",
-  }}
->
-  <div
-    style={{
-      position: "relative",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "flex-end",
-      overflow: "visible",
-    }}
-  >
-    {/* ===== TEXTO QUE PASSA POR TRÁS ===== */}
-    <div
-      style={{
-        position: "absolute",
-        right: "-200px", // começa fora da tela
-        background: "rgba(0,0,0,0.85)",
-        color: "#fff",
-        padding: "8px 16px",
-        borderRadius: "10px",
-        fontFamily: "Inter, sans-serif",
-        fontSize: "15px",
-        fontWeight: 500,
-        whiteSpace: "nowrap",
-        animation: "slideBehind 5s ease-in-out forwards",
-        zIndex: 1,
-      }}
-    >
-      Conheça a Wovvy
-    </div>
-
-    {/* ===== BOTÃO (VÍDEO) ===== */}
-    <div
-      onClick={() => setShowModal(true)}
-      style={{
-        width: "100px",
-        height: "160px",
-        borderRadius: "18px",
-        overflow: "hidden",
-        border: "none",
-        cursor: "pointer",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-        zIndex: 2, // botão acima do texto
-        background: "#000",
-      }}
-    >
-      <video
-        src={VIDEOS[0]}
-        muted
-        autoPlay
-        playsInline
-        loop
+      <div
         style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
+          position: "fixed",
+          bottom: "130px",
+          right: "15px",
+          display: "flex",
+          alignItems: "center",
+          zIndex: 9999,
+          overflow: "visible",
         }}
-      />
-    </div>
-  </div>
+      >
+        <div
+          style={{
+            position: "relative",
+            width: "260px", // 👈 largura maior que o botão
+            height: "160px",
+            overflow: "hidden", // 👈 agora funciona
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+          }}
+        >
+          {/* ===== TEXTO QUE PASSA POR TRÁS ===== */}
+          <div
+            style={{
+              position: "absolute",
+              right: "100px",
+              background: "linear-gradient(90deg, #1D4ED8, #3B82F6)",
+              color: "#fff",
+              padding: "8px 18px",
+              borderTopLeftRadius: "12px",
+              borderBottomLeftRadius: "12px",
+              borderTopRightRadius: "0px",
+              borderBottomRightRadius: "0px",
+              fontFamily: "Inter, sans-serif",
+              fontSize: "15px",
+              fontWeight: 500,
+              whiteSpace: "nowrap",
+              transform: "translateX(120%)",
+              animation: "slideLeft 4s ease-in-out forwards",
+              animationDelay: "2s", // 👈 espera 2 segundos antes de começar
+              zIndex: 1,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            Conheça a Wovvy
+          </div>
 
-  {/* ===== ANIMAÇÃO ===== */}
-  <style>
-    {`
-      @keyframes slideBehind {
-        0% {
-          transform: translateX(200px);
-        }
-        50% {
-          transform: translateX(150px);
-        }
-        100% {
-          transform: translateX(-200px);
-        }
-      }
-    `}
-  </style>
-</div>
+          {/* ===== BOTÃO (VÍDEO) ===== */}
+          <div
+            onClick={() => setShowModal(true)}
+            style={{
+              width: "100px",
+              height: "160px",
+              borderRadius: "18px",
+              overflow: "hidden",
+              border: "none",
+              cursor: "pointer",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+              zIndex: 2, // botão acima do texto
+              background: "#000",
+            }}
+          >
+            <video
+              src={VIDEOS[0]}
+              muted
+              autoPlay
+              playsInline
+              loop
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          </div>
+        </div>
+
+        {/* ===== ANIMAÇÃO ===== */}
+        <style>
+          {`
+@keyframes slideLeft {
+  0% {
+    transform: translateX(120%);
+  }
+  25% {
+    transform: translateX(0%);
+  }
+  75% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+`}
+        </style>
+      </div>
 
 
 
